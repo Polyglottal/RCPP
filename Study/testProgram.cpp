@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 // void parser(std::string& text)
 // {
@@ -43,12 +44,10 @@ void parser(
     std::string threeBundle { };
     std::string fourBundle { };
 
-    int collCounter { 0 };
-    int threeBundleCounter { 0 };
-    int fourBundleCounter { 0 };
-
-    for (char c : text)
+    // Using an iterator lets me detect when I have reached the end of the string
+    for (auto iterator = text.begin(); iterator != text.end(); ++iterator)
     {   
+        char c = *iterator;
         if (c != '.')
         {
             word += c;
@@ -57,61 +56,32 @@ void parser(
             fourBundle += c;
         }
 
-        if (c == ' ')
+        if (c == ' ' || std::next(iterator) == text.end())
         {
-            collCounter++;
-            threeBundleCounter++;
-            fourBundleCounter++;
+
+            if (fourBundle != threeBundle)
+            {
+                fourBundleList.push_back(fourBundle);
+                fourBundle = threeBundle;
+            }
+
+            if (threeBundle != coll)
+            {
+                threeBundleList.push_back(threeBundle);
+                threeBundle = coll;
+            }
+
+            if (coll != word)
+            {
+                collList.push_back(coll);
+                coll = word;
+            }
 
             wordlist.push_back(word);
             word = {};
 
-            if (collCounter == 2)
-            { 
-                collList.push_back(coll);
-                coll = {};
-                collCounter = 0;
-            }
-
-            if (threeBundleCounter == 3)
-            {
-                threeBundleList.push_back(threeBundle);
-                threeBundle = {};
-                threeBundleCounter = 0;
-            }
-
-            if (fourBundleCounter == 4)
-            {
-                fourBundleList.push_back(fourBundle);
-                fourBundle = {};
-                fourBundleCounter = 0;
-            }
         }
     }
-
-    std::cout << "Word list:" << std::endl;
-    for (int index {0}; index < static_cast<int>(wordlist.size()); index++)
-    {
-        std::cout << wordlist[index] << std::endl;
-    }
-    std::cout << "Collocation list" << std::endl;
-    for (int index {0}; index < static_cast<int>(collList.size()); index++)
-    {
-        std::cout << collList[index] << std::endl;
-    }
-
-    std::cout << "Lexical 3 bundles:" << std::endl;
-    for (int index {0}; index < static_cast<int>(threeBundleList.size()); index++)
-    {
-        std::cout << threeBundleList[index] << std::endl;
-    }
-
-    std::cout << "Lexical four bundles:" << std::endl;
-    for (int index {0}; index < static_cast<int>(fourBundleList.size()); index++)
-    {
-        std::cout << fourBundleList[index] << std::endl;
-    }
-    
 }
 
 void collocationBuilder(const std::vector<std::string>& wordlist, std::vector<std::string>& collList, const int collSize)
@@ -132,14 +102,64 @@ void collocationBuilder(const std::vector<std::string>& wordlist, std::vector<st
     }
 }
 
+void printListHeads(
+    const std::vector<std::string>& wordlist,
+    const std::vector<std::string>& collList,
+    const std::vector<std::string>& threeBundleList,
+    const std::vector<std::string>& fourBundleList,
+    int headLength
+)
+{
+    std::cout << "Word list:" << std::endl;
+    for (int index {0}; index < headLength; index++)
+    {
+        std::cout << wordlist[index] << std::endl;
+    }
+    std::cout << "Collocation list" << std::endl;
+    for (int index {0}; index < headLength; index++)
+    {
+        std::cout << collList[index] << std::endl;
+    }
+
+    std::cout << "Lexical 3 bundles:" << std::endl;
+    for (int index {0}; index < headLength; index++)
+    {
+        std::cout << threeBundleList[index] << std::endl;
+    }
+
+    std::cout << "Lexical four bundles:" << std::endl;
+    for (int index {0}; index < headLength; index++)
+    {
+        std::cout << fourBundleList[index] << std::endl;
+    }
+}
+
 int main ()
 {
     std::string text { "Hello, how are you today. How am I today?" };
+
     std::vector<std::string> wordlist { }; // initialize an empty word list
     std::vector<std::string> collList { };
     std::vector<std::string> threeBundleList { };
     std::vector<std::string> fourBundleList { };
-    parser(text, wordlist, collList, threeBundleList, fourBundleList);
+
+    std::ifstream f("sample.txt");
+    if (!f.is_open()) {
+        std::cerr << "Error opening file." << std::endl;
+        return 1;
+    }
+
+    std::string line;
+    std::string allContent;
+    while (std::getline(f, line)) {
+        allContent += line;
+    }
+    parser(allContent, wordlist, collList, threeBundleList, fourBundleList);
+
+    printListHeads(wordlist, collList, threeBundleList, fourBundleList, 100);
+    std::cout << wordlist.size() << " " << collList.size() << " " << threeBundleList.size() << " " << fourBundleList.size() << std::endl;
+
+    
     //collocationBuilder(wordlist, collList, 2);
     //collocationBuilder(wordlist, threeBundleList, 3);
     //collocationBuilder(wordlist, fourBundleList, 4);
