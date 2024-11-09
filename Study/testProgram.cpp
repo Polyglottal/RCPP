@@ -48,15 +48,31 @@ void parser(const std::string& text, std::vector<std::string>& wordlist)
 
     for (int index {0}; index < static_cast<int>(wordlist.size()); index++)
     {
-        std::cout << wordlist[index] << ' ';
+        std::cout << wordlist[index];
     }
     
+}
+
+void collocationBuilder(const std::vector<std::string>& wordlist, std::vector<std::string>& collList)
+{
+    std::string coll { };
+    for (int index {0}; index < static_cast<int>(wordlist.size() - 1); index++)
+    {
+        coll += wordlist[index] + wordlist[index + 1];
+        collList.push_back(coll);
+        coll = {};
+    }
+    for (int index {0}; index < static_cast<int>(collList.size()); index++)
+    {
+        std::cout << collList[index] << std::endl;
+    }
 }
 
 int main ()
 {
     std::string text { "Hello, how are you today. How am I today?" };
     std::vector<std::string> wordlist { }; // initialize an empty word list
-    wordlist.reserve(20000); // reserve memory for 20000 words in the vector
+    std::vector<std::string> collList { };
     parser(text, wordlist);
+    collocationBuilder(wordlist, collList);
 }
