@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include "punctuation.h"
 
 // void parser(std::string& text)
 // {
@@ -30,6 +31,8 @@
 // Instead the copy is made by char c in the for loop, so remove the
 // & pass-by-reference on char& c otherwise it conflicts with const.
 
+
+
 // But imagine if we could build the collocation lists here! It could be done in one go!
 void parser(
     const std::string& text, 
@@ -47,8 +50,8 @@ void parser(
     // Using an iterator lets me detect when I have reached the end of the string
     for (auto iterator = text.begin(); iterator != text.end(); ++iterator)
     {   
-        char c = *iterator;
-        if (c != '.')
+        const char c = *iterator;
+        if (!Punctuation::isPunctuation(c))
         {
             word += c;
             coll += c;
