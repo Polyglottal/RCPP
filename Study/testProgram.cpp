@@ -53,12 +53,15 @@ void parser(const std::string& text, std::vector<std::string>& wordlist)
     
 }
 
-void collocationBuilder(const std::vector<std::string>& wordlist, std::vector<std::string>& collList)
+void collocationBuilder(const std::vector<std::string>& wordlist, std::vector<std::string>& collList, const int collSize)
 {
     std::string coll { };
-    for (int index {0}; index < static_cast<int>(wordlist.size() - 1); index++)
+    for (int index {0}; index < static_cast<int>(wordlist.size() - (collSize - 1)); index++)
     {
-        coll += wordlist[index] + wordlist[index + 1];
+        for (int j {index}; j <= index + collSize - 1; j++) {
+            coll += wordlist[j];
+        }
+        // coll += wordlist[index] + wordlist[index + 1];
         collList.push_back(coll);
         coll = {};
     }
@@ -73,6 +76,10 @@ int main ()
     std::string text { "Hello, how are you today. How am I today?" };
     std::vector<std::string> wordlist { }; // initialize an empty word list
     std::vector<std::string> collList { };
+    std::vector<std::string> threeBundleList { };
+    std::vector<std::string> fourBundleList { };
     parser(text, wordlist);
-    collocationBuilder(wordlist, collList);
+    collocationBuilder(wordlist, collList, 2);
+    collocationBuilder(wordlist, threeBundleList, 3);
+    collocationBuilder(wordlist, fourBundleList, 4);
 }
